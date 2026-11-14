@@ -1,0 +1,8 @@
+{
+  "package": "br.com.avantesistemas.assinadorconecta",
+  "version": "0.7.3",
+  "versionCode": 14,
+  "apkUrl": "https://github.com/pitagoras125/assinador-conecta-atualizacoes/releases/download/v0.7.3/Conecta-PDF-0.7.3-Android-arm64.apk",
+  "sha256": "92e4b0ddad88e10909de95465eb29b7f374d5b820462b93af06e490ba1116aee",
+  "notes": "Conversão de documentos para PDF e scanner Wi-Fi por eSCL e WSD."
+}

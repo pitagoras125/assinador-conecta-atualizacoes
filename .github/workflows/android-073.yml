@@ -1,0 +1,26 @@
+name: Publicar Android 0.7.3
+on:
+  push:
+    paths: ['.github/workflows/android-073.yml']
+permissions:
+  contents: write
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verificar pacote e publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd android/0.7.3
+          apk=Conecta-PDF-0.7.3-Android-arm64.apk
+          gh release download v0.7.2 -p 'Conecta-PDF-0.7.2-Android-arm64.apk' -O "$RUNNER_TEMP/base.apk"
+          echo "6a118172649d6e150feb6c15298052da431eae4b75fc70b014923e0409da0869  $RUNNER_TEMP/base.apk" | sha256sum -c -
+          cat parte-* > "$RUNNER_TEMP/pacote.zst"
+          zstd -dq --long=27 --patch-from="$RUNNER_TEMP/base.apk" "$RUNNER_TEMP/pacote.zst" -o "$apk"
+          printf '%s  %s\n' "$(jq -er .sha256 update.json)" "$apk" > SHA256SUMS.txt
+          sha256sum -c SHA256SUMS.txt
+          gh release create v0.7.3 "$apk" update.json SHA256SUMS.txt --draft --title 'Conecta PDF para Android 0.7.3' --notes 'Conversão do texto de DOCX, ODT, PPTX, TXT, CSV, TSV e Markdown para PDF. Busca de scanners Wi-Fi por eSCL e WSD. A compatibilidade depende do equipamento.'
+          gh release edit v0.7.3 --draft=false --latest
