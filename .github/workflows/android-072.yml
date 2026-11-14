@@ -1,0 +1,26 @@
+name: Publicar Android 0.7.2
+on:
+  push:
+    paths: ['.github/workflows/android-072.yml']
+permissions:
+  contents: write
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verificar pacote e publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd android/0.7.2
+          apk=Conecta-PDF-0.7.2-Android-arm64.apk
+          gh release download v0.7.1 -p 'Conecta-PDF-0.7.1-Android-arm64.apk' -O "$RUNNER_TEMP/base.apk"
+          echo "b374df81ab1f899e96d64d7a9342d8785aec397c3a04f062b97c1068bd9ef83f  $RUNNER_TEMP/base.apk" | sha256sum -c -
+          cat parte-* > "$RUNNER_TEMP/pacote.zst"
+          zstd -dq --long=27 --patch-from="$RUNNER_TEMP/base.apk" "$RUNNER_TEMP/pacote.zst" -o "$apk"
+          printf '%s  %s\n' "$(jq -er .sha256 update.json)" "$apk" > SHA256SUMS.txt
+          sha256sum -c SHA256SUMS.txt
+          gh release create v0.7.2 "$apk" update.json SHA256SUMS.txt --draft --title 'Conecta PDF para Android 0.7.2' --notes 'Revisão e rotação de páginas digitalizadas e melhorias na conversão de imagens.'
+          gh release edit v0.7.2 --draft=false --latest

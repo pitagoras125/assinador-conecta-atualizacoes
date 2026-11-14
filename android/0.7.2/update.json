@@ -1,0 +1,8 @@
+{
+  "package": "br.com.avantesistemas.assinadorconecta",
+  "version": "0.7.2",
+  "versionCode": 13,
+  "apkUrl": "https://github.com/pitagoras125/assinador-conecta-atualizacoes/releases/download/v0.7.2/Conecta-PDF-0.7.2-Android-arm64.apk",
+  "sha256": "6a118172649d6e150feb6c15298052da431eae4b75fc70b014923e0409da0869",
+  "notes": "Revisão e rotação de páginas digitalizadas e melhorias na conversão de imagens."
+}
