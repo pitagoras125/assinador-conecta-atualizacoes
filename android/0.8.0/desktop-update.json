@@ -1,0 +1,11 @@
+{
+  "payload": {
+    "app": "conecta-pdf-windows",
+    "version": "1.2.0",
+    "url": "https://github.com/pitagoras125/assinador-conecta-atualizacoes/releases/download/v0.8.0/Instalar_Conecta_PDF_1.2.0.exe",
+    "sha256": "f697236b346d15675a275992b63dee2e1b124271a075ada117162a92fcf4e794",
+    "size": 87649204,
+    "terms_sha256": "8c99aee48516c431550b62e30b707e3ff00c19cfda0afcbc22dc166c6de8aaae"
+  },
+  "signature": "nJtm1UF8VZOKlcBub538gLbL+6WZR3exl7jZmcFjYl9wxJYWd71J4px3ac/dI9n75cz8lvu49TlXX5EAPELrCQ=="
+}

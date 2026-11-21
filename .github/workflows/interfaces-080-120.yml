@@ -1,0 +1,32 @@
+name: Publicar interfaces Windows 1.2.0 e Android 0.8.0
+on:
+  push:
+    paths: ['.github/workflows/interfaces-080-120.yml']
+permissions:
+  contents: write
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Conferir pacotes e publicar ambos os canais
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          cd android/0.8.0
+          apk=Conecta-PDF-0.8.0-Android-arm64.apk
+          exe=Instalar_Conecta_PDF_1.2.0.exe
+          gh release download v0.7.3 -p Conecta-PDF-0.7.3-Android-arm64.apk -O "$RUNNER_TEMP/base.apk"
+          echo "92e4b0ddad88e10909de95465eb29b7f374d5b820462b93af06e490ba1116aee  $RUNNER_TEMP/base.apk" | sha256sum -c -
+          cat parte-* > "$RUNNER_TEMP/pacote.zst"
+          zstd -dq --long=27 --patch-from="$RUNNER_TEMP/base.apk" "$RUNNER_TEMP/pacote.zst" -o "$apk"
+          gh release download v1.2.0 --repo pitagoras125/ASSINADOR-CONECTA -p "$exe"
+          printf '%s  %s\n' "$(jq -er .sha256 update.json)" "$apk" > SHA256SUMS.txt
+          printf '%s  %s\n' "$(jq -er .payload.sha256 desktop-update.json)" "$exe" >> SHA256SUMS.txt
+          sha256sum -c SHA256SUMS.txt
+          test "$(stat -c%s "$exe")" = "$(jq -er .payload.size desktop-update.json)"
+          gh release create v0.8.0 "$apk" "$exe" update.json desktop-update.json SHA256SUMS.txt --draft --title 'Conecta PDF — Windows 1.2.0 e Android 0.8.0' --notes 'Novo visual branco e azul nas duas plataformas. Ferramentas com ícones e nomes, documentos em abas, miniaturas maiores no Windows e acesso direto às funções no mobile. Chancela aprovada e rotinas de assinatura preservadas. Testes automatizados aprovados nas duas plataformas; inicialização do EXE validada no Windows. APK assinado com a mesma chave das versões anteriores. Atualizações disponíveis dentro dos aplicativos; o Android solicita confirmação para instalar.'
+          gh release edit v0.8.0 --draft=false --latest

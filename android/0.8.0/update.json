@@ -1,0 +1,8 @@
+{
+  "package": "br.com.avantesistemas.assinadorconecta",
+  "version": "0.8.0",
+  "versionCode": 15,
+  "apkUrl": "https://github.com/pitagoras125/assinador-conecta-atualizacoes/releases/download/v0.8.0/Conecta-PDF-0.8.0-Android-arm64.apk",
+  "sha256": "6bad7d30bf6f6107a16af6c11cb9368d3aa559777d435b2994075b6050e27325",
+  "notes": "Interface branca e azul com ferramentas visíveis e nomes, acesso a conversões e scanner Wi-Fi. Chancela aprovada preservada."
+}
