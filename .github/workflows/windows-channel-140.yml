@@ -1,0 +1,31 @@
+name: Distribuir Windows 1.4.0 pelo atualizador
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/windows-channel-140.yml']
+permissions:
+  contents: write
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Validar arquivos e publicar o canal
+        run: |
+          set -euo pipefail
+          tag=windows-v1.4.0
+          exe=Instalar_Conecta_PDF_1.4.0.exe
+          apk=Conecta-PDF-0.8.0-Android-arm64.apk
+          gh release download v1.4.0 -R pitagoras125/ASSINADOR-CONECTA -p "$exe"
+          gh release download v0.8.0 -p update.json -p "$apk"
+          cat > desktop-update.json <<'JSON'
+          {"payload":{"app":"conecta-pdf-windows","version":"1.4.0","url":"https://github.com/pitagoras125/assinador-conecta-atualizacoes/releases/download/windows-v1.4.0/Instalar_Conecta_PDF_1.4.0.exe","sha256":"93cf6696b7ca4c394bbe55d3a1d5036aa42e699aaf668ff5d2176dfafe6b9c38","size":87654549,"terms_sha256":"8c99aee48516c431550b62e30b707e3ff00c19cfda0afcbc22dc166c6de8aaae"},"signature":"HM8/6gCkhZnRDL6kl28yWEKiYoWU5FqoSziyHnpzI7MtsrSwNG2bnUrTR5fxPzyoGz5OK2fwOejBQ7hHjKSeDw=="}
+          JSON
+          printf '%s  %s\n' "$(jq -er .payload.sha256 desktop-update.json)" "$exe" "$(jq -er .sha256 update.json)" "$apk" > SHA256SUMS.txt
+          sha256sum -c SHA256SUMS.txt
+          test "$(stat -c %s "$exe")" = "$(jq -er .payload.size desktop-update.json)"
+          gh release create "$tag" --draft --title 'Conecta PDF — Windows 1.4.0 e Android 0.8.0' --notes 'Atualização do Windows pelo próprio Conecta PDF.'
+          gh release upload "$tag" "$exe" desktop-update.json update.json "$apk" SHA256SUMS.txt
+          gh release edit "$tag" --draft=false --latest
