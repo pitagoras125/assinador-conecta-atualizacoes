@@ -1,0 +1,30 @@
+name: Distribuir Conecta PDF para Windows 1.4.3
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/windows-only-143.yml']
+permissions:
+  contents: write
+jobs:
+  windows:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Publicar somente o instalador e atualizar o manifesto Windows
+        run: |
+          set -euo pipefail
+          channel=$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)
+          test "$channel" = windows-v1.4.2
+          exe=Instalar_Conecta_PDF_1.4.3.exe
+          gh release download v1.4.3 -R pitagoras125/ASSINADOR-CONECTA -p "$exe"
+          echo '5b45a58771f91414c7e608487d7a5748848f72affc66cbad357f7c1e0e7be1a2  Instalar_Conecta_PDF_1.4.3.exe' > SHA256SUMS.txt
+          sha256sum -c SHA256SUMS.txt
+          echo '{"payload":{"app":"conecta-pdf-windows","version":"1.4.3","url":"https://github.com/pitagoras125/assinador-conecta-atualizacoes/releases/download/windows-v1.4.3/Instalar_Conecta_PDF_1.4.3.exe","sha256":"5b45a58771f91414c7e608487d7a5748848f72affc66cbad357f7c1e0e7be1a2","size":87657391,"terms_sha256":"8c99aee48516c431550b62e30b707e3ff00c19cfda0afcbc22dc166c6de8aaae"},"signature":"DxAD3lAjnYqPACFD0x8gTJNDj9PPkud46L+nUCb1LONIIhlt5eHmpZs9FF1BsQN4utlFKx7HdULAL4WVmZ/hAQ=="}' > desktop-update.json
+          gh release create windows-v1.4.3 "$exe" desktop-update.json SHA256SUMS.txt --latest=false --title 'Conecta PDF para Windows 1.4.3' --notes 'Interface de assinatura aprovada.'
+          test "$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)" = "$channel"
+          gh release upload "$channel" desktop-update.json --clobber
+          mkdir check
+          gh release download "$channel" -p desktop-update.json -D check
+          cmp desktop-update.json check/desktop-update.json
